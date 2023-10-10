@@ -27,12 +27,14 @@ class Author(models.Model):
 
 
 class Category(models.Model):
+    objects = None
     name_category = models.CharField(max_length=255, unique=True)
     subscribers = models.ManyToManyField(User, blank=True, null=True, related_name="categories")
     def __str__(self):
         return self.name_category
 
 class Post(models.Model):
+    DoesNotExist = None
     objects = None
     author = models.ForeignKey('Author', on_delete=models.PROTECT, verbose_name='Автор')
     type = models.CharField(max_length=2, choices=POST, default=article, verbose_name='Вид поста')

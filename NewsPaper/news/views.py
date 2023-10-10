@@ -38,6 +38,11 @@ class PostList(ListView):
     context_object_name = 'posts'
     paginate_by = 10
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['is_not_authors'] = not self.request.user.groups.filter(name='authors').exists()
+        return context
+
 
 class PostDetail(DetailView):
     # Модель всё та же, но мы хотим получать информацию по отдельному товару
@@ -46,7 +51,19 @@ class PostDetail(DetailView):
     template_name = 'new.html'
     # Название объекта, в котором будет выбранный пользователем продукт
     context_object_name = 'post'
+    queryset = Post.objects.all()
+    def get_object(self, *args, **kwargs):  # переопределяем метод получения объекта, как ни странно
 
+        obj = cache.get(f'post-{self.kwargs["pk"]}',
+                        None)  # кэш очень похож на словарь, и метод get действует так же. Он забирает значение по ключу, если его нет, то забирает None.
+
+        # если объекта нет в кэше, то получаем его и записываем в кэш
+
+        if not obj:
+            obj = super().get_object(queryset=self.queryset)
+            cache.set(f'post-{self.kwargs["pk"]}', obj)
+
+        return obj
 
 class PostSearchList(ListView):
     # Указываем модель, объекты которой мы будем выводить

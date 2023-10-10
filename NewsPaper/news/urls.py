@@ -1,11 +1,11 @@
 from django.urls import path
 # Импортируем созданное нами представление
 from .views import PostList, PostDetail, PostSearchList, \
-   PostCreate, PostUpdate, PostDelete, PostCategory, subscribe
-
+   PostCreate, PostUpdate, PostDelete, PostCategory, subscribe, IndexView
+from django.views.decorators.cache import cache_page
 
 urlpatterns = [
-   path('', PostList.as_view()),
+   path('', cache_page(60*1)(PostList.as_view())),
    path('<int:pk>', PostDetail.as_view()),
    path('search/', PostSearchList.as_view(), name='post_search'),
    path('create/', PostCreate.as_view(), name='post_create'),
